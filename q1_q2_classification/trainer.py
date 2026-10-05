@@ -23,7 +23,7 @@ def save_model(epoch, model_name, model):
 
 
 def train(args, model, optimizer, scheduler=None, model_name='model'):
-    writer = SummaryWriter()
+    writer = SummaryWriter(log_dir=args.log_dir)
     train_loader = utils.get_data_loader(
         'voc', train=True, batch_size=args.batch_size, split='trainval', inp_size=args.inp_size)
     test_loader = utils.get_data_loader(
@@ -53,7 +53,9 @@ def train(args, model, optimizer, scheduler=None, model_name='model'):
             # Function Outputs:
             #   - `output`: Computed loss, a single floating point number
             ##################################################################
-            loss = 0
+            prob = torch.sigmoid(output)
+            loss = -1 * wgt * (target * torch.log(prob + 1e-8) + (1 - target) * torch.log(1 - prob + 1e-8))
+            loss = torch.mean(loss)
             ##################################################################
             #                          END OF YOUR CODE                      #
             ##################################################################

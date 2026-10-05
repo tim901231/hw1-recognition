@@ -49,6 +49,8 @@ class ARGS(object):
     # input size
     inp_size = 224
 
+    log_dir = "runs/default"
+
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             assert '__' not in k and hasattr(self, k), "invalid attribute!"
