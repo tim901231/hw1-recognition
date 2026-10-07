@@ -59,7 +59,7 @@ class HyperParameters:
 def create_dataset_and_dataloaders(subset=False):
     train_dataset = VOC2007DetectionTiny(
         DATASET_PATH, "train", image_size=IMAGE_SHAPE[0],
-        download=True# True (set to False after the first time)
+        download=False# True (set to False after the first time)
     )
     if subset:
         small_dataset = torch.utils.data.Subset(

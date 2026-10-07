@@ -101,9 +101,10 @@ class VOCDataset(Dataset):
         ######################################################################
         # return [transforms.RandomCrop(int(0.8 * self.size))]
         if self.split == "test":
-            return []
+            return [transforms.CenterCrop(self.size * 7 / 8)]
         else:
-            return [transforms.RandomResizedCrop(self.size), transforms.RandomHorizontalFlip()]
+            return [transforms.RandomResizedCrop(self.size * 7 / 8, scale=(0.65, 1.0), ratio=(0.75, 1.33)), transforms.RandomHorizontalFlip(),
+            transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1)]
         ######################################################################
         #                            END OF YOUR CODE                        #
         ######################################################################
