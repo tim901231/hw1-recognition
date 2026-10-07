@@ -139,7 +139,7 @@ def fcos_get_deltas_from_locations(
     ##########################################################################
     # Set this to Tensor of shape (N, 4) giving deltas (left, top, right, bottom)
     # from the locations to GT box edges, normalized by FPN stride.
-    deltas = torch.zeros(locations.shape[0], 4)
+    deltas = torch.zeros(locations.shape[0], 4).to(device=locations.device)
     deltas[:, 0] = gt_boxes[:, 0] - locations[:, 0]
     deltas[:, 1] = gt_boxes[:, 1] - locations[:, 1] 
     deltas[:, 2] = gt_boxes[:, 2] - locations[:, 0]
@@ -186,7 +186,7 @@ def fcos_apply_deltas_to_locations(
     # for our use-case because the feature center must lie INSIDE the final  #
     # box. Make sure to clip them to zero.                                   #
     ##########################################################################
-    output_boxes = torch.zeros(deltas.shape[0], 4)
+    output_boxes = torch.zeros(deltas.shape[0], 4).to(device=locations.device)
     deltas = torch.clip(deltas, 0)
     output_boxes[:, 0] = locations[:, 0] - deltas[:, 0] * stride
     output_boxes[:, 1] = locations[:, 1] - deltas[:, 1] * stride

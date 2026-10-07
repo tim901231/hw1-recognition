@@ -469,12 +469,16 @@ class FCOS(nn.Module):
 
         loss_cls = sigmoid_focal_loss(inputs=pred_cls_logits, targets=gt_cls)
 
+        foreground = labels >= 0
+        foreground_deltas = matched_gt_deltas[foreground]
         loss_box = 0.25 * F.l1_loss(
-            pred_boxreg_deltas, matched_gt_deltas.to(device=pred_boxreg_deltas.device), reduction="none"
+            pred_boxreg_deltas[foreground], foreground_deltas, reduction="none"
         )
 
         loss_ctr = F.binary_cross_entropy_with_logits(
-            pred_ctr_logits.reshape(-1), fcos_make_centerness_targets(matched_gt_deltas.reshape(-1, 4)).to(device=pred_ctr_logits.device), reduction="none"
+            pred_ctr_logits.squeeze(-1)[foreground],
+            fcos_make_centerness_targets(foreground_deltas),
+            reduction="none",
         )
 
 
@@ -573,19 +577,25 @@ class FCOS(nn.Module):
             )
             # Step 1:
             # Replace "pass" statement with your code
-            pass
+            prob, indice = torch.max(level_pred_scores, dim=1)
             
             # Step 2:
             # Replace "pass" statement with your code
-            pass
+            mask = prob > test_score_thresh
+            level_pred_scores = prob[mask]
+            level_pred_classes = indice[mask]
 
             # Step 3:
             # Replace "pass" statement with your code
-            pass
+            level_pred_boxes = fcos_apply_deltas_to_locations(level_deltas[mask], level_locations[mask], stride=self.backbone.fpn_strides[level_name])
 
             # Step 4: Use `images` to get (height, width) for clipping.
             # Replace "pass" statement with your code
-            pass
+            H, W = images.shape[-2:]
+            level_pred_boxes[:, 0].clamp_(min=0, max=W)
+            level_pred_boxes[:, 1].clamp_(min=0, max=H)
+            level_pred_boxes[:, 2].clamp_(min=0, max=W)
+            level_pred_boxes[:, 3].clamp_(min=0, max=H)
 
             ##################################################################
             #                          END OF YOUR CODE                      #
